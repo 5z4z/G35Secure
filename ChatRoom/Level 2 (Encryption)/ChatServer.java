@@ -2,6 +2,11 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
+import javax.net.ssl.*;
+
+
+
+
 
 public class ChatServer {
 
@@ -12,9 +17,10 @@ public class ChatServer {
         this.port = port;
     }
 
-    public void start() throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("[Server] Listening on port " + port + " ...");
+    public void start() throws IOException{
+        SSLServerSocketFactory factory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+        try (SSLServerSocket serverSocket = (SSLServerSocket) factory.createServerSocket(port)) { // using TLS to start the server instead of plain server socket which allows for encrypted network traffic.
+            System.out.println("[Server] (TLS) Listening on port " + port + " ...");
             while (true) {
                 Socket socket = serverSocket.accept();
                 ClientHandler handler = new ClientHandler(socket, this);
@@ -22,6 +28,19 @@ public class ChatServer {
             }
         }
     }
+
+    
+
+    //public void start() throws IOException {
+    //    try (ServerSocket serverSocket = new ServerSocket(port)) {
+    //        System.out.println("[Server] Listening on port " + port + " ...");
+    //        while (true) {
+    //            Socket socket = serverSocket.accept();
+    //            ClientHandler handler = new ClientHandler(socket, this);
+    //            handler.start();
+    //       }
+     ///   }
+    //}
 
     void broadcast(String message, ClientHandler except) {
         for (ClientHandler client : clients) {
@@ -65,6 +84,8 @@ public class ChatServer {
         String getNameSafe() {
             return username != null ? username : "Unknown";
         }
+
+        
 
         @Override
         public void run() {

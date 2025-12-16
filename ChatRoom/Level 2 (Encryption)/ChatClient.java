@@ -1,5 +1,8 @@
 import java.io.*;
 import java.net.*;
+import javax.net.ssl.*;
+
+
 
 public class ChatClient {
 
@@ -10,7 +13,10 @@ public class ChatClient {
         if (args.length >= 1) host = args[0];
         if (args.length >= 2) port = Integer.parseInt(args[1]);
 
-        try (Socket socket = new Socket(host, port)) {
+
+
+        SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        try (SSLSocket socket = (SSLSocket) factory.createSocket(host, port)) { // using TLS socket to allow for encrypted network traffic.
             System.out.println("[Client] Connected to " + host + ":" + port);
 
             BufferedReader serverIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
